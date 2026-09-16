@@ -325,7 +325,6 @@
     <div class="nav-links">
       <a href="#rank">Rank</a>
       <a href="#kit">Kit</a>
-      <a href="#money">Top Up</a>
       <a href="#refund">Refund</a>
       <a href="#order">Order</a>
     </div>
@@ -388,51 +387,19 @@
   </div>
 </section>
 
-<section class="sec sec-alt" id="money">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Top up money in game</h2>
-      <p>Atur jumlah money yang mau kamu beli, harga menyesuaikan otomatis.</p>
-    </div>
-    <div class="converter">
-      <div class="rate-line">Rp 1.000 <span style="color:var(--ink-faint)">=</span> <b style="color:var(--ink)">50.000</b> money in game</div>
-      <div class="stepper">
-        <button class="step-btn" onclick="adjustMoney(-1)" aria-label="Kurangi">−</button>
-        <div class="amount-display">
-          <div class="amt" id="moneyAmt">50.000</div>
-          <div class="unit">money in game</div>
-        </div>
-        <button class="step-btn" onclick="adjustMoney(1)" aria-label="Tambah">+</button>
-      </div>
-      <div class="price-out">
-        <div class="label">Total harga</div>
-        <div class="value" id="moneyPrice">Rp 1.000</div>
-      </div>
-      <div class="cta-row"><button onclick="selectMoney()">Pilih jumlah ini</button></div>
-    </div>
-  </div>
-</section>
-
 <section class="sec" id="refund">
   <div class="wrap">
     <div class="sec-head">
       <h2>Refund / pengembalian dana</h2>
-      <p>Berlaku syarat berbeda untuk money in game dan rank.</p>
+      <p>Kebijakan refund untuk rank dan kit.</p>
     </div>
     <div class="refund-grid">
       <div class="refund-card">
-        <h3 style="color:var(--moss)">Money in game</h3>
+        <h3 style="color:var(--gold)">Rank & Kit</h3>
         <ul>
-          <li>Refund diajukan sebelum 1 hari sejak pembelian.</li>
-          <li>Seluruh money dari pembelian tersebut harus dikembalikan.</li>
-          <li>Money di akun harus masih cukup untuk diproses refund.</li>
-        </ul>
-      </div>
-      <div class="refund-card">
-        <h3 style="color:var(--gold)">Rank</h3>
-        <ul>
-          <li>Tidak ada refund setelah rank aktif di akun.</li>
+          <li>Tidak ada refund setelah rank atau kit aktif di akun.</li>
           <li>Pengecualian: order masih sementara / belum diproses dan player berubah pikiran.</li>
+          <li>Hubungi admin sesegera mungkin sebelum item diberikan.</li>
         </ul>
       </div>
     </div>
@@ -449,4 +416,40 @@
       <div class="order-empty" id="orderEmpty">Belum ada item dipilih. Pilih rank, kit, atau jumlah top up di atas.</div>
       <div class="order-summary" id="orderSummary">
         <div>
-          <div
+          <div class="item-name" id="sumName">—</div>
+          <div class="item-price" id="sumPrice">—</div>
+        </div>
+        <button class="clear-btn" onclick="clearOrder()">Ganti</button>
+      </div>
+
+      <div id="orderForm" style="display:none">
+        <div class="field">
+          <label for="gamertag">Gamertag</label>
+          <input type="text" id="gamertag" placeholder="Contoh: Steve_Builder">
+        </div>
+        <div class="field">
+          <label for="platform">Platform</label>
+          <select id="platform">
+            <option value="Java">Java</option>
+            <option value="Bedrock">Bedrock</option>
+          </select>
+        </div>
+        <div class="order-actions">
+          <button class="btn-primary" id="sendBtn" onclick="sendOrder()">Kirim via WhatsApp</button>
+          <button class="btn-secondary" onclick="copyOrder()">Salin pesan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="community">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Community</h2>
+      <p>Gabung buat update event, giveaway, dan bantuan langsung dari tim.</p>
+    </div>
+    <div class="comm-row">
+      <a class="comm-card wa" href="https://chat.whatsapp.com/LofEMTHRCDsHCI8r9Jdh2X" target="_blank" rel="noopener">
+        <div class="icon">💬</div>
+        <div><di
