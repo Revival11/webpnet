@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PlayNet SMP Store</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0e0c;
+  --bg-raised:#121611;
+  --panel:#161b16;
+  --panel-border:rgba(255,255,255,.08);
+  --ink:#eef1ec;
+  --ink-dim:#9aa39a;
+  --ink-faint:#6b746b;
+  --moss:#3ddc84;
+  --moss-dim:rgba(61,220,132,.15);
+  --gold:#f0b23c;
+  --copper:#d0895a;
+  --iron:#a7b0ac;
+  --diamond:#4fd6e0;
+  --emerald:#33c17d;
+  --amethyst:#a677e0;
+  --netherite:#8b7fae;
+  --celestial-a:#f5d76e;
+  --celestial-b:#4fd6e0;
+  --celestial-c:#c58cff;
+  --danger:#e0685a;
+  --radius-s:10px;
+  --radius-m:16px;
+  --radius-l:24px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(ellipse 900px 500px at 50% -10%,rgba(61,220,132,.10),transparent 60%),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif}
+a{color:inherit}
+button,input,select{font-family:'Inter',sans-serif}
+::selection{background:var(--moss-dim)}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+
+.block-field{
+  position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.45;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:42px 42px;
+}
+
+nav{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(14px);
+  background:rgba(11,14,12,.76);
+  border-bottom:1px solid var(--panel-border);
+}
+.nav-row{
+  max-width:960px;margin:auto;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand-dot{
+  width:9px;height:9px;border-radius:3px;background:var(--moss);
+  box-shadow:0 0 10px var(--moss);
+}
+.nav-links{display:flex;align-items:center;gap:22px;font-size:14px;color:var(--ink-dim)}
+.nav-links a{text-decoration:none;transition:.2s}
+.nav-links a:hover{color:var(--ink)}
+@media(max-width:680px){.nav-links{display:none}}
+
+header{padding:70px 20px 50px;text-align:center}
+.status-pill{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 14px;margin-bottom:22px;
+  border-radius:999px;border:1px solid var(--panel-border);background:var(--panel);
+  color:var(--ink-dim);font-size:12.5px;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--moss);
+  box-shadow:0 0 8px var(--moss);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero-title{font-size:46px;line-height:1.08;margin-bottom:14px}
+.hero-title .accent{color:var(--moss)}
+.hero-sub{max-width:560px;margin:0 auto 30px;color:var(--ink-dim);font-size:16px}
+.hero-buttons{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:32px;
+}
+.hero-btn{
+  padding:12px 20px;border-radius:var(--radius-s);border:1px solid var(--panel-border);
+  text-decoration:none;font-size:14px;font-weight:700;transition:.2s;
+}
+.hero-btn.primary{background:var(--moss);color:#08110b;border-color:var(--moss)}
+.hero-btn:hover{transform:translateY(-2px)}
+.ip-row{max-width:430px;margin:auto;display:flex;flex-direction:column;gap:10px}
+.ip-box{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;
+  border-radius:var(--radius-m);background:var(--panel);border:1px solid var(--panel-border);
+}
+.ip-box .label{
+  display:block;color:var(--ink-faint);font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+}
+.ip-box .value{font-family:'Space Grotesk',sans-serif;font-weight:600}
+.copy-btn{
+  flex-shrink:0;border:1px solid var(--panel-border);border-radius:var(--radius-s);padding:8px 13px;
+  background:transparent;color:var(--ink);cursor:pointer;font-weight:600;
+}
+.copy-btn:hover{border-color:var(--moss);color:var(--moss)}
+
+.sec{padding:64px 20px}
+.sec-alt{
+  background:var(--bg-raised);
+  border-top:1px solid var(--panel-border);border-bottom:1px solid var(--panel-border);
+}
+.sec-head{max-width:560px;margin-bottom:36px}
+.sec-head h2{font-size:29px;margin-bottom:8px}
+.sec-head p{color:var(--ink-dim);font-size:15px}
+
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+.info-card{
+  padding:20px;background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--radius-m);
+}
+.info-card h3{font-size:16px;margin-bottom:8px}
+.info-card p{color:var(--ink-dim);font-size:14px}
+
+.ladder{display:flex;flex-direction:column}
+.rung{
+  display:grid;grid-template-columns:32px 1fr;gap:18px;position:relative;
+}
+.stem{position:relative;display:flex;justify-content:center}
+.stem::before{
+  content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;
+  transform:translateX(-50%);background:var(--panel-border);
+}
+.rung:first-child .stem::before{top:16px}
+.rung:last-child .stem::before{bottom:calc(100% - 16px)}
+.node{
+  position:relative;z-index:2;width:32px;height:32px;margin-top:16px;display:flex;
+  align-items:center;justify-content:center;border-radius:8px;color:#08110b;font-weight:800;font-size:13px;
+}
+.rung-card{
+  margin-bottom:14px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius-m);transition:.2s;
+}
+.rung-card:hover{border-color:var(--tier-color)}
+.rung-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700}
+.rung-desc{margin-top:3px;font-size:12.5px;color:var(--ink-faint)}
+.rung-actions{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.rung-price{
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--tier-color);
+}
+.pick-btn{
+  padding:9px 18px;border-radius:var(--radius-s);border:1.5px solid var(--tier-color);
+  background:transparent;color:var(--tier-color);cursor:pointer;font-weight:700;transition:.2s;
+}
+.pick-btn:hover{background:var(--tier-color);color:#08110b}
+.celestial{
+  background:linear-gradient(
+    120deg,
+    rgba(245,215,110,.08),
+    rgba(79,214,224,.08),
+    rgba(197,140,255,.08)
+  );
+}
+.celestial .rung-price{
+  background:linear-gradient(120deg,var(--celestial-a),var(--celestial-b),var(--celestial-c));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+.kit-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px;
+}
+.kit-card{
+  padding:20px;display:flex;flex-direction:column;gap:9px;background:var(--panel);
+  border:1px solid var(--panel-border);border-radius:var(--radius-m);transition:.2s;
+}
+.kit-card:hover{transform:translateY(-2px)}
+.kit-name{
+  display:flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;
+}
+.swatch{width:10px;height:10px;border-radius:3px}
+.kit-price{font-size:21px;font-weight:700}
+.kit-note{font-size:12.5px;color:var(--ink-faint)}
+.kit-card button{
+  margin-top:6px;padding:9px;border-radius:var(--radius-s);border:1px solid var(--panel-border);
+  background:transparent;color:var(--ink);cursor:pointer;font-weight:600;
+}
+.kit-card button:hover{border-color:var(--moss);color:var(--moss)}
+
+.converter{
+  padding:28px 24px;background:var(--panel);border:1px solid var(--panel-border);
+  border-radius:var(--radius-l);
+}
+.rate-line{text-align:center;color:var(--ink-dim);margin-bottom:24px;font-size:14px}
+.stepper{display:flex;justify-content:center;align-items:center;gap:18px;margin-bottom:22px}
+.step-btn{
+  width:46px;height:46px;border-radius:50%;border:1px solid var(--panel-border);
+  background:var(--bg-raised);color:var(--ink);cursor:pointer;font-size:21px;font-weight:700;
+}
+.step-btn:hover{border-color:var(--moss);color:var(--moss)}
+.amount-display{min-width:180px;text-align:center}
+.amount-display .amt{font-family:'Space Grotesk',sans-serif;font-size:27px;font-weight:700}
+.amount-display .unit{color:var(--ink-faint);font-size:12px}
+.price-out{padding-top:20px;text-align:center;border-top:1px dashed var(--panel-border)}
+.price-out .label{color:var(--ink-faint);font-size:12px;text-transform:uppercase}
+.price-out .value{
+  margin-top:6px;color:var(--moss);font-family:'Space Grotesk',sans-serif;font-size:29px;font-weight:700;
+}
+.cta-row{display:flex;justify-content:center;margin-top:20px}
+.cta-row button{
+  padding:12px 26px;border:none;border-radius:var(--radius-s);background:var(--moss);
+  color:#08110b;font-weight:700;cursor:pointer;
+}
+
+.refund-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:16px;
+}
+.refund-card{
+  padding:22px;background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--radius-m);
+}
+.refund-card h3{margin-bottom:12px;font-size:16px}
+.refund-card ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.refund-card li{
+  display:flex;align-items:flex-start;gap:9px;color:var(--ink-dim);font-size:14px;
+}
+.refund-card li::before{content:"—";color:var(--ink-faint)}
+
+.order-box{
+  padding:26px 24px;background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--radius-l);
+}
+.order-empty{padding:30px 10px;text-align:center;color:var(--ink-faint);font-size:14px}
+.order-summary{
+  display:none;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;
+  margin-bottom:20px;background:var(--bg-raised);border:1px solid var(--panel-border);
+  border-radius:var(--radius-m);
+}
+.order-summary.active{display:flex}
+.item-name{font-family:'Space Grotesk',sans-serif;font-weight:700}
+.item-price{margin-top:2px;color:var(--moss);font-size:14px}
+.clear-btn{
+  border:none;background:transparent;color:var(--ink-faint);text-decoration:underline;cursor:pointer;
+}
+.field{margin-bottom:14px}
+.field label{
+  display:block;margin-bottom:6px;color:var(--ink-dim);font-size:12.5px;font-weight:600;
+}
+.field input,.field select{
+  width:100%;padding:12px 14px;border-radius:var(--radius-s);border:1px solid var(--panel-border);
+  background:var(--bg-raised);color:var(--ink);font-size:14px;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--moss)}
+.order-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.order-actions button{
+  flex:1;min-width:150px;padding:13px;border-radius:var(--radius-s);cursor:pointer;font-weight:700;
+}
+.btn-primary{border:none;background:#25D366;color:#08110b}
+.btn-secondary{border:1px solid var(--panel-border);background:transparent;color:var(--ink)}
+
+.comm-row{display:flex;flex-wrap:wrap;gap:14px}
+.comm-card{
+  flex:1;min-width:220px;display:flex;align-items:center;gap:14px;padding:18px 20px;
+  text-decoration:none;border:1px solid var(--panel-border);border-radius:var(--radius-m);
+  background:var(--panel);transition:.2s;
+}
+.comm-card:hover{transform:translateY(-3px);border-color:var(--moss)}
+.comm-icon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:11px;
+  background:var(--moss-dim);font-size:20px;
+}
+.ctitle{font-weight:700}
+.csub{color:var(--ink-faint);font-size:12.5px}
+
+footer{
+  padding:42px 20px 50px;text-align:center;color:var(--ink-faint);
+  border-top:1px solid var(--panel-border);font-size:13px;
+}
+
+.toast{
+  position:fixed;z-index:999;bottom:24px;left:50%;transform:translateX(-50%);
+  padding:12px 20px;border-radius:var(--radius-m);background:#1c211c;
+  border:1px solid var(--panel-border);box-shadow:0 8px 24px rgba(0,0,0,.4);
+  font-size:13.5px;animation:toastIn .25s ease;
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translate(-50%,10px)}
+  to{opacity:1;transform:translate(-50%,0)}
+}
+
+@media(max-width:600px){
+  .hero-title{font-size:34px}
+  .sec{padding:50px 16px}
+  .rung-card{padding:16px}
+  .rung-actions{width:100%;justify-content:space-between}
+}
+</style>
+</head>
+
+<body>
+
+<div class="block-field"></div>
+
+<nav>
+  <div class="nav-row">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      PlayNet
+    </div>
+
+    <div class="nav-links">
+      <a href="#rank">Rank</a>
+      <a href="#kit">Kit</a>
+      <a href="#money">Money</a>
+      <a href="#refund">Refund</a>
+      <a href="#order">Order</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="status-pill">
+    <span class="live-dot"></span>
+    PlayNetwork SMP · Java + Bedrock
+  </div>
+
+  <h1 class="hero-title">
+    Support <span class="accent">PlayNetwork SMP</span>
+  </h1>
+
+  <p class="hero-sub">
+    Beli rank, upgrade rank, kit, atau money in-game
+    untuk mendukung perkembangan PlayNetwork SMP.
+  </p>
+
+  <div class="hero-buttons">
+    <a class="hero-btn primary" href="#rank">Lihat Store</a>
+    <a class="hero-btn" href="https://store.playnet.my.id" target="_blank" rel="noopener">
+      store.playnet.my.id
+    </a>
+  </div>
+
+  <div class="ip-row">
+    <div class="ip-box">
+      <div>
+        <span class="label">Server Address</span>
+        <span class="value">mc.playnet.my.id</span>
+      </div>
+      <button class="copy-btn" onclick="copyText('mc.playnet.my.id')">Salin</button>
+    </div>
+
+    <div class="ip-box">
+      <div>
+        <span class="label">Port Bedrock</span>
+        <span class="value">25523</span>
+      </div>
+      <button class="copy-btn" onclick="copyText('25523')">Salin</button>
+    </div>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Main di PlayNet SMP</h2>
+      <p>Java dan Bedrock bisa bermain bersama di satu server.</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <h3 style="color:var(--diamond)">Java Edition</h3>
+        <p>Multiplayer → Add Server → masukkan <b>mc.playnet.my.id</b>.</p>
+      </div>
+
+      <div class="info-card">
+        <h3 style="color:var(--emerald)">Bedrock Edition</h3>
+        <p>Add Server → address <b>mc.playnet.my.id</b>, port <b>25523</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="rank">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Buy Rank</h2>
+      <p>
+        Mau beli, upgrade, atau cuma lihat-lihat?
+        Kamu juga bisa langsung buka <b>store.playnet.my.id</b>.
+      </p>
+    </div>
+
+    <div class="ladder" id="rankLadder"></div>
+  </div>
+</section>
+
+<section class="sec" id="kit">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Kit Only?</h2>
+      <p>Butuh kit tanpa membeli rank? Pilih kit yang kamu inginkan.</p>
+    </div>
+
+    <div class="kit-grid" id="kitGrid"></div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="money">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Money In Game</h2>
+      <p>Rp1.000 mendapatkan <b>50.000 money in-game</b>.</p>
+    </div>
+
+    <div class="converter">
+      <div class="rate-line">
+        Rp1.000 = <b>50.000 Money</b>
+      </div>
+
+      <div class="stepper">
+        <button class="step-btn" onclick="changeMoney(-1)">−</button>
+
+        <div class="amount-display">
+          <div class="amt" id="moneyAmount">50.000</div>
+          <div class="unit">Money In Game</div>
+        </div>
+
+        <button class="step-btn" onclick="changeMoney(1)">+</button>
+      </div>
+
+      <div class="price-out">
+        <div class="label">Harga</div>
+        <div class="value" id="moneyPrice">Rp1.000</div>
+      </div>
+
+      <div class="cta-row">
+        <button onclick="selectMoneyOrder()">Pilih Money</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="refund">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Refund / Pengembalian Dana</h2>
+      <p>Persyaratan refund pembelian PlayNetwork SMP.</p>
+    </div>
+
+    <div class="refund-grid">
+      <div class="refund-card">
+        <h3 style="color:var(--moss)">Money In Game</h3>
+        <ul>
+          <li>Refund dilakukan sebelum 1 hari sejak pembelian.</li>
+          <li>Harus melakukan refund seluruh money yang dibeli.</li>
+          <li>Money di akun harus masih cukup untuk melakukan refund.</li>
+        </ul>
+      </div>
+
+      <div class="refund-card">
+        <h3 style="color:var(--gold)">Rank</h3>
+        <ul>
+          <li>Rank yang sudah diproses tidak dapat direfund.</li>
+          <li>Refund dapat dilakukan jika order masih sementara atau belum diproses.</li>
+          <li>Player dapat membatalkan order sebelum rank diberikan apabila berubah pikiran.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="order">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Order Kamu</h2>
+      <p>Pilih rank, kit, atau money terlebih dahulu lalu kirim pesanan ke admin.</p>
+    </div>
+
+    <div class="order-box">
+      <div class="order-empty" id="orderEmpty">
+        Belum ada item dipilih.
+      </div>
+
+      <div class="order-summary" id="orderSummary">
+        <div>
+          <div class="item-name" id="sumName">—</div>
+          <div class="item-price" id="sumPrice">—</div>
+        </div>
+
+        <button class="clear-btn" onclick="clearOrder()">Ganti</button>
+      </div>
+
+      <div id="orderForm" style="display:none">
+        <div class="field">
+          <label for="gamertag">Gamertag</label>
+          <input type="text" id="gamertag" placeholder="Contoh: Steve_Builder">
+        </div>
+
+        <div class="field">
+          <label for="platform">Platform</label>
+
+          <select id="platform">
+            <option value="Java">Java</option>
+            <option value="Bedrock">Bedrock</option>
+          </select>
+        </div>
+
+        <div class="order-actions">
+          <button class="btn-primary" onclick="sendOrder()">Kirim via WhatsApp</button>
+          <button class="btn-secondary" onclick="copyOrder()">Salin Pesan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="community">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Community</h2>
+      <p>
+        Gabung untuk update event, giveaway, maintenance,
+        dan informasi terbaru PlayNetwork SMP.
+      </p>
+    </div>
+
+    <div class="comm-row">
+      <a
+        class="comm-card"
+        href="https://chat.whatsapp.com/LofEMTHRCDsHCI8r9Jdh2X"
+        target="_blank"
+        rel="noopener"
+      >
+        <div class="comm-icon">💬</div>
+
+        <div>
+          <div class="ctitle">WhatsApp Community</div>
+          <div class="csub">Join komunitas PlayNetwork.</div>
+        </div>
+      </a>
+
+      <a
+        class="comm-card"
+        href="https://store.playnet.my.id"
+        target="_blank"
+        rel="noopener"
+      >
+        <div class="comm-icon">🛒</div>
+
+        <div>
+          <div class="ctitle">PlayNet Store</div>
+          <div class="csub">store.playnet.my.id</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 PlayNetwork SMP
+  <br>
+  Java + Bedrock Survival Economy
+</footer>
+
+<script>
+
+const ADMIN_NUMBER = "";
+
+const rankData = [
+  {name:"Warrior",price:5000,color:"var(--iron)"},
+  {name:"Slayer",price:10000,color:"var(--gold)"},
+  {name:"Elite",price:20000,color:"var(--diamond)"},
+  {name:"Emperor",price:35000,color:"var(--emerald)"},
+  {name:"Lord",price:50000,color:"var(--amethyst)"},
+  {name:"Overlord",price:75000,color:"var(--netherite)"},
+  {name:"Mythic",price:120000,color:"var(--danger)"},
+  {name:"Celestial",price:250000,color:"var(--celestial-b)",celestial:true}
+];
+
+const kitData = [
+  {name:"Emperor",price:5000,color:"var(--emerald)"},
+  {name:"Lord",price:8500,color:"var(--amethyst)"},
+  {name:"Overlord",price:10000,color:"var(--netherite)"},
+  {name:"Mythic",price:11500,color:"var(--danger)"},
+  {name:"Celestial",price:16000,color:"var(--celestial-b)"}
+];
+
+let currentOrder = null;
+
+let moneySteps = 1;
+
+const MONEY_PER_STEP = 50000;
+const PRICE_PER_STEP = 1000;
+
+function rupiah(number){
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style:"currency",
+      currency:"IDR",
+      maximumFractionDigits:0
+    }
+  ).format(number);
+}
+
+function numberFormat(number){
+  return new Intl.NumberFormat("id-ID").format(number);
+}
+
+function renderRanks(){
+  const ladder = document.getElementById("rankLadder");
+  ladder.innerHTML = "";
+
+  rankData.forEach((rank,index)=>{
+    const rung = document.createElement("div");
+    rung.className = "rung";
+
+    rung.innerHTML = `
+      <div class="stem">
+        <div
+          class="node"
+          style="
+            background:${rank.color};
+            box-shadow:
+              0 0 0 4px var(--bg),
+              0 0 18px ${rank.color};
+          "
+        >
+          ${index + 1}
+        </div>
+      </div>
+
+      <div
+        class="rung-card ${rank.celestial ? "celestial" : ""}"
+        style="--tier-color:${rank.color}"
+      >
+        <div>
+          <div class="rung-name">${rank.name}</div>
+          <div class="rung-desc">Permanent Server Rank</div>
+        </div>
+
+        <div class="rung-actions">
+          <div class="rung-price">${rupiah(rank.price)}</div>
+
+          <button
+            class="pick-btn"
+            onclick="selectOrder('Rank','${rank.name}',${rank.price})"
+          >
+            Pilih
+          </button>
+        </div>
+      </div>
+    `;
+
+    ladder.appendChild(rung);
+  });
+}
+
+function renderKits(){
+  const grid = document.getElementById("kitGrid");
+  grid.innerHTML = "";
+
+  kitData.forEach(kit=>{
+    const card = document.createElement("div");
+    card.className = "kit-card";
+
+    card.innerHTML = `
+      <div class="kit-name">
+        <span
+          class="swatch"
+          style="background:${kit.color}"
+        ></span>
+
+        ${kit.name} Kit
+      </div>
+
+      <div
+        class="kit-price"
+        style="color:${kit.color}"
+      >
+        ${rupiah(kit.price)}
+      </div>
+
+      <div class="kit-note">
+        Kit only · tanpa rank permanen
+      </div>
+
+      <button
+        onclick="selectOrder('Kit','${kit.name} Kit',${kit.price})"
+      >
+        Pilih Kit
+      </button>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function changeMoney(change){
+  moneySteps += change;
+
+  if(moneySteps < 1){
+    moneySteps = 1;
+  }
+
+  updateMoney();
+}
+
+function updateMoney(){
+  const money = moneySteps * MONEY_PER_STEP;
+  const price = moneySteps * PRICE_PER_STEP;
+
+  document.getElementById("moneyAmount").textContent =
+    numberFormat(money);
+
+  document.getElementById("moneyPrice").textContent =
+    rupiah(price);
+}
+
+function selectMoneyOrder(){
+  const money = moneySteps * MONEY_PER_STEP;
+  const price = moneySteps * PRICE_PER_STEP;
+
+  selectOrder(
+    "Money In Game",
+    `${numberFormat(money)} Money`,
+    price
+  );
+}
+
+function selectOrder(type,name,price){
+  currentOrder = {
+    type,
+    name,
+    price
+  };
+
+  document.getElementById("orderEmpty").style.display = "none";
+
+  document.getElementById("orderSummary").classList.add("active");
+
+  document.getElementById("orderForm").style.display = "block";
+
+  document.getElementById("sumName").textContent =
+    `${type} · ${name}`;
+
+  document.getElementById("sumPrice").textContent =
+    rupiah(price);
+
+  document.getElementById("order").scrollIntoView({
+    behavior:"smooth"
+  });
+}
+
+function clearOrder(){
+  currentOrder = null;
+
+  document.getElementById("orderEmpty").style.display = "block";
+  document.getElementById("orderSummary").classList.remove("active");
+  document.getElementById("orderForm").style.display = "none";
+}
+
+function buildOrderMessage(){
+  if(!currentOrder){
+    return null;
+  }
+
+  const gamertag =
+    document.getElementById("gamertag").value.trim();
+
+  const platform =
+    document.getElementById("platform").value;
+
+  if(!gamertag){
+    showToast("Masukkan gamertag dulu.");
+    return null;
+  }
+
+  return `Halo admin PlayNetwork SMP 👋
+
+Saya ingin melakukan order.
+
+Produk: ${currentOrder.type}
+Item: ${currentOrder.name}
+Harga: ${rupiah(currentOrder.price)}
+
+Gamertag: ${gamertag}
+Platform: ${platform}
+
+Mohon diproses jika sudah tersedia.`;
+}
+
+function sendOrder(){
+  const message = buildOrderMessage();
+
+  if(!message){
+    return;
+  }
+
+  const encoded = encodeURIComponent(message);
+
+  let url;
+
+  if(ADMIN_NUMBER){
+    url = `https://wa.me/${ADMIN_NUMBER}?text=${encoded}`;
+  }else{
+    url = `https://wa.me/?text=${encoded}`;
+  }
+
+  window.open(url,"_blank");
+}
+
+async function copyOrder(){
+  const message = buildOrderMessage();
+
+  if(!message){
+    return;
+  }
+
+  try{
+    await navigator.clipboard.writeText(message);
+    showToast("Pesan order berhasil disalin.");
+  }catch{
+    fallbackCopy(message);
+  }
+}
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast("Berhasil disalin.");
+  }catch{
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text){
+  const textarea = document.createElement("textarea");
+
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+
+  document.body.appendChild(textarea);
+
+  textarea.select();
+  document.execCommand("copy");
+
+  textarea.remove();
+
+  showToast("Berhasil disalin.");
+}
+
+function showToast(message){
+  const oldToast = document.querySelector(".toast");
+
+  if(oldToast){
+    oldToast.remove();
+  }
+
+  const toast = document.createElement("div");
+
+  toast.className = "toast";
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  setTimeout(()=>{
+    toast.remove();
+  },2200);
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
+    renderRanks();
+    renderKits();
+    updateMoney();
+  }
+);
+
+</script>
+
+</body>
+</html>
